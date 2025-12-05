@@ -1,0 +1,30 @@
+{
+  "name": "jungle-challenge-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "turbo": "^2.6.3",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.0",
+    "@jungle/lint-staged-config": "*"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "config/*"
+  ],
+  "lint-staged": {
+    "*": "lint-staged --config ./config/lint-staged/index.js"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "@jungle/lint-staged-config",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "devDependencies": {
+    "lint-staged": "^15.2.0"
+  }
+}
