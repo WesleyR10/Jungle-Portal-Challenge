@@ -1,0 +1,48 @@
+name: jungle-portal-infra
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: jungle-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-jungle}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-jungle_password}
+      POSTGRES_DB: ${DB_NAME:-jungle_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - jungle-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jungle"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: jungle-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-jungle}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-jungle_password}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - jungle-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
+networks:
+  jungle-network:
+    driver: bridge

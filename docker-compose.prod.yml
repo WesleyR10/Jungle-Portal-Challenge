@@ -1,0 +1,81 @@
+name: jungle-portal-prod
+
+services:
+  # Infra (reuse from base compose if possible, but here explicitly defined for standalone prod)
+  postgres:
+    image: postgres:17-alpine
+    container_name: jungle-postgres-prod
+    environment:
+      POSTGRES_USER: ${DB_USER:-jungle}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-jungle_password}
+      POSTGRES_DB: ${DB_NAME:-jungle_db}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - jungle-network-prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jungle"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: jungle-rabbitmq-prod
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-jungle}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-jungle_password}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data_prod:/var/lib/rabbitmq
+    networks:
+      - jungle-network-prod
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  # Apps
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: jungle-api-gateway
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-jungle}:${DB_PASSWORD:-jungle_password}@postgres:5432/${DB_NAME:-jungle_db}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-jungle}:${RABBITMQ_PASS:-jungle_password}@rabbitmq:5672
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - jungle-network-prod
+    restart: always
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: jungle-web
+    ports:
+      - "8080:80"
+    networks:
+      - jungle-network-prod
+    restart: always
+
+volumes:
+  postgres_data_prod:
+  rabbitmq_data_prod:
+
+networks:
+  jungle-network-prod:
+    driver: bridge

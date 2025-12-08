@@ -1,0 +1,4 @@
+{
+  "dev.containers.executeInWSL": true,
+  "dev.containers.dockerPath": "/usr/bin/docker"
+}

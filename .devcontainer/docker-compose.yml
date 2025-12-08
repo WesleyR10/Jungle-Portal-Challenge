@@ -1,0 +1,19 @@
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/home/node/app:cached
+      - ../.docker/rabbitmq:/home/node/app/.docker/rabbitmq
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    networks:
+      - jungle-network
+    # Fix for git permissions in container
+    environment:
+      - GIT_SAFE_DIRECTORIES=/home/node/app
+
+# Create a dedicated network for dev environment
+networks:
+  jungle-network:
+    driver: bridge
