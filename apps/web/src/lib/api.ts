@@ -8,6 +8,11 @@ export async function apiFetch<T>(
   init: RequestInit & { auth?: boolean } = {}
 ): Promise<T> {
   const { auth, headers, ...rest } = init
+  const base =
+    (import.meta as unknown as { env?: Record<string, string> })?.env?.[
+      'VITE_API_URL'
+    ] ?? `${window.location.protocol}//${window.location.hostname}:3000`
+  const url = input.startsWith('http') ? input : `${base}${input}`
 
   const finalHeaders: HeadersInit = {
     'Content-Type': 'application/json',
@@ -29,7 +34,7 @@ export async function apiFetch<T>(
     }
   }
 
-  const response = await fetch(input, {
+  const response = await fetch(url, {
     ...rest,
     headers: finalHeaders,
   })
