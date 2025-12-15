@@ -146,4 +146,30 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  .dot-typing {
+    position: relative;
+    width: 36px;
+    height: 12px;
+  }
+  .dot-typing::before,
+  .dot-typing::after,
+  .dot-typing span {
+    content: '';
+    position: absolute;
+    top: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.5;
+    animation: dot-bounce 1s infinite ease-in-out;
+  }
+  .dot-typing::before { left: 0; animation-delay: 0s; }
+  .dot-typing span { left: 14px; animation-delay: 0.2s; }
+  .dot-typing::after { left: 28px; animation-delay: 0.4s; }
+  @keyframes dot-bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+    40% { transform: translateY(-3px); opacity: 1; }
+  }
 }

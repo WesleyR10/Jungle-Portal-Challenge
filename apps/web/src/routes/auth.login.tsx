@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createRoute, redirect, Link } from '@tanstack/react-router'
-import { useMutation } from '@tanstack/react-query'
+import { createRoute, Link, useRouter } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { StatefulButton } from '@/components/ui/stateful-button'
@@ -33,11 +33,14 @@ export const loginRoute = createRoute({
 function LoginPage() {
   const loginStore = useAuthStore()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
+  const router = useRouter()
 
   const loginMutation = useMutation({
     mutationFn: loginMutationFn,
     onSuccess: (tokens) => {
       loginStore.login(tokens)
+      queryClient.setQueryData(['auth', 'isAuthenticated'], true)
     },
     onError: (error: ApiError) => {
       toast({
@@ -58,8 +61,12 @@ function LoginPage() {
   })
 
   async function onSubmit(data: LoginFormValues) {
-    await loginMutation.mutateAsync(data)
-    throw redirect({ to: '/tasks' })
+    try {
+      await loginMutation.mutateAsync(data)
+      router.navigate({ to: '/tasks' })
+    } catch (e) {
+      // errors já são tratados no onError com toast
+    }
   }
 
   return (
@@ -89,9 +96,6 @@ function LoginPage() {
           </div>
           <Card className="border-transparent bg-transparent shadow-none">
             <CardContent className="pt-2">
-              {(isSubmitting || loginMutation.isPending) && (
-                <Skeleton className="mb-4 h-3 w-24 bg-primary/30" />
-              )}
               <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-1">
                   <Label htmlFor="email" className="block pb-1 text-left">
@@ -153,9 +157,7 @@ function LoginPage() {
                     </p>
                   )}
                 </div>
-                <StatefulButton
-                  loading={isSubmitting || loginMutation.isPending}
-                >
+                <StatefulButton loading={loginMutation.isPending}>
                   Entrar
                 </StatefulButton>
               </form>

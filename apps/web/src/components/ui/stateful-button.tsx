@@ -17,12 +17,13 @@ export function StatefulButton({
       type="submit"
       className={cn('group relative w-full overflow-hidden', className)}
       disabled={loading}
+      aria-busy={loading ? true : undefined}
     >
       {loading ? (
-        <span className="relative z-10 flex w-full items-center justify-center gap-2">
-          <span>Processando...</span>
-          <span className="inline-flex h-4 w-20 items-center justify-center">
-            <span className="btn-loader-bar" />
+        <span className="relative z-10 flex w-full items-center justify-center gap-3 text-primary-foreground">
+          <span>Processando</span>
+          <span className="dot-typing">
+            <span />
           </span>
         </span>
       ) : (

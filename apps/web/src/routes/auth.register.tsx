@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createRoute, redirect, Link } from '@tanstack/react-router'
+import { createRoute, Link, useRouter } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -38,19 +38,26 @@ export const registerRoute = createRoute({
 
 function RegisterPage() {
   const { toast } = useToast()
+  const router = useRouter()
 
   const registerMutation = useMutation({
     mutationFn: registerMutationFn,
     onSuccess: () => {
       toast({
         title: 'Conta criada',
-        description: 'Você já pode entrar com suas credenciais.',
+        description: 'Cadastro realizado com sucesso! Você já pode entrar.',
       })
     },
     onError: (error: ApiError) => {
+      const msg =
+        error.status === 400 && error.message
+          ? error.message
+          : error.status === 409
+            ? 'E-mail já cadastrado.'
+            : error.message || 'Não foi possível criar a conta.'
       toast({
         title: 'Falha no cadastro',
-        description: error.message || 'Não foi possível criar a conta.',
+        description: msg,
         variant: 'destructive',
       })
     },
@@ -65,8 +72,12 @@ function RegisterPage() {
   })
 
   async function onSubmit(data: RegisterFormValues) {
-    await registerMutation.mutateAsync(data)
-    throw redirect({ to: '/login' })
+    try {
+      await registerMutation.mutateAsync(data)
+      router.navigate({ to: '/login' })
+    } catch {
+      // já tratado por toast
+    }
   }
 
   return (
@@ -94,9 +105,6 @@ function RegisterPage() {
           </div>
           <Card className="border-transparent bg-transparent shadow-none">
             <CardContent className="pt-2">
-              {(isSubmitting || registerMutation.isPending) && (
-                <Skeleton className="mb-4 h-3 w-28 bg-primary/30" />
-              )}
               <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-1">
                   <Label htmlFor="email" className="block pb-1 text-left">
@@ -220,9 +228,7 @@ function RegisterPage() {
                     </p>
                   )}
                 </div>
-                <StatefulButton
-                  loading={isSubmitting || registerMutation.isPending}
-                >
+                <StatefulButton loading={registerMutation.isPending}>
                   Criar conta
                 </StatefulButton>
               </form>
