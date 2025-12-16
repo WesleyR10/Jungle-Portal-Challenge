@@ -3,6 +3,39 @@ export type ApiError = {
   message: string
 }
 
+function getTokens() {
+  if (typeof window === 'undefined') {
+    return { accessToken: null, refreshToken: null }
+  }
+
+  try {
+    const raw = window.localStorage.getItem('auth_tokens')
+    if (!raw) return { accessToken: null, refreshToken: null }
+    return JSON.parse(raw) as {
+      accessToken: string | null
+      refreshToken: string | null
+    }
+  } catch {
+    return { accessToken: null, refreshToken: null }
+  }
+}
+
+function saveTokens(tokens: {
+  accessToken: string | null
+  refreshToken?: string | null
+}) {
+  if (typeof window === 'undefined') return
+
+  try {
+    const existing = getTokens()
+    const payload = {
+      accessToken: tokens.accessToken ?? existing.accessToken ?? null,
+      refreshToken: tokens.refreshToken ?? existing.refreshToken ?? null,
+    }
+    window.localStorage.setItem('auth_tokens', JSON.stringify(payload))
+  } catch {}
+}
+
 export async function apiFetch<T>(
   input: string,
   init: RequestInit & { auth?: boolean } = {}
@@ -23,17 +56,10 @@ export async function apiFetch<T>(
   }
 
   if (auth) {
-    const raw = window.localStorage.getItem('auth_tokens')
-    if (raw) {
-      try {
-        const { accessToken } = JSON.parse(raw) as {
-          accessToken: string | null
-        }
-        if (accessToken) {
-          ;(finalHeaders as Record<string, string>).Authorization =
-            `Bearer ${accessToken}`
-        }
-      } catch {}
+    const { accessToken } = getTokens()
+    if (accessToken) {
+      ;(finalHeaders as Record<string, string>).Authorization =
+        `Bearer ${accessToken}`
     }
   }
 
@@ -41,20 +67,55 @@ export async function apiFetch<T>(
     url,
     method: rest.method || 'GET',
   })
-  let response: Response
-  try {
-    response = await fetch(url, {
-      ...rest,
-      headers: finalHeaders,
-    })
-  } catch (e: any) {
-    const aborted =
-      typeof e?.name === 'string' && e.name.toLowerCase() === 'aborterror'
-    const error: ApiError = {
-      status: aborted ? 0 : 500,
-      message: aborted ? 'Requisição cancelada' : 'Falha de rede',
+  async function doRequest(): Promise<Response> {
+    try {
+      return await fetch(url, {
+        ...rest,
+        headers: finalHeaders,
+      })
+    } catch (e: any) {
+      const aborted =
+        typeof e?.name === 'string' && e.name.toLowerCase() === 'aborterror'
+      const error: ApiError = {
+        status: aborted ? 0 : 500,
+        message: aborted ? 'Requisição cancelada' : 'Falha de rede',
+      }
+      throw error
     }
-    throw error
+  }
+
+  let response = await doRequest()
+
+  if (auth && response.status === 401) {
+    const { refreshToken } = getTokens()
+
+    if (refreshToken) {
+      try {
+        const refreshResponse = await fetch(`${base}/api/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refreshToken }),
+        })
+
+        if (refreshResponse.ok) {
+          const data = (await refreshResponse.json()) as {
+            accessToken: string
+            refreshToken?: string
+          }
+
+          saveTokens({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+          })
+          ;(finalHeaders as Record<string, string>).Authorization =
+            `Bearer ${data.accessToken}`
+
+          response = await doRequest()
+        }
+      } catch {}
+    }
   }
 
   if (!response.ok) {

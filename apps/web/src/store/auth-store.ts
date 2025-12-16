@@ -8,10 +8,12 @@ type AuthState = {
   logout: () => void
 }
 
+const initialTokens = getInitialAuthFromStorage()
+
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
-  refreshToken: null,
-  isAuthenticated: false,
+  accessToken: initialTokens.accessToken,
+  refreshToken: initialTokens.refreshToken,
+  isAuthenticated: !!initialTokens.accessToken,
   login: ({ accessToken, refreshToken }) =>
     set((state) => {
       window.localStorage.setItem(

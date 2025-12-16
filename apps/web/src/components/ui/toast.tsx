@@ -7,6 +7,7 @@ type Toast = {
   title?: string
   description?: string
   variant?: ToastVariant
+  duration?: number
 }
 
 type ToastStore = {
@@ -18,15 +19,28 @@ type ToastStore = {
 const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
   push: (toast) =>
-    set((state) => ({
-      toasts: [
-        ...state.toasts,
-        {
-          id: crypto.randomUUID(),
-          ...toast,
-        },
-      ],
-    })),
+    set((state) => {
+      const id = crypto.randomUUID()
+      const duration = toast.duration ?? 4000
+
+      if (duration > 0) {
+        setTimeout(() => {
+          set((current) => ({
+            toasts: current.toasts.filter((t) => t.id !== id),
+          }))
+        }, duration)
+      }
+
+      return {
+        toasts: [
+          ...state.toasts,
+          {
+            id,
+            ...toast,
+          },
+        ],
+      }
+    }),
   dismiss: (id) =>
     set((state) => ({
       toasts: state.toasts.filter((toast) => toast.id !== id),

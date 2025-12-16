@@ -13,7 +13,9 @@ import {
   createCommentMutationFn,
   taskCommentsQueryOptions,
   taskDetailQueryOptions,
+  usersListQueryOptions,
 } from '@/lib/queries'
+import { AssigneesMultiSelect } from '@/components/assignees-multi-select'
 
 const commentSchema = z.object({
   content: z.string().min(1, 'Comentário não pode ser vazio'),
@@ -36,6 +38,10 @@ function TaskDetailPage() {
     isLoading: isTaskLoading,
     error: taskError,
   } = useQuery(taskDetailQueryOptions(taskId))
+
+  const { data: users, isLoading: isLoadingUsers } = useQuery(
+    usersListQueryOptions()
+  )
 
   const {
     data: comments,
@@ -97,6 +103,17 @@ function TaskDetailPage() {
                 <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                   <span>Status: {task.status}</span>
                   <span>Prioridade: {task.priority}</span>
+                </div>
+                <div className="mt-4 space-y-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
+                    Responsáveis
+                  </p>
+                  <AssigneesMultiSelect
+                    users={users}
+                    isLoading={isLoadingUsers}
+                    value={task.assigneeIds || []}
+                    onChange={() => {}}
+                  />
                 </div>
               </>
             )}

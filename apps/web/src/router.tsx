@@ -9,6 +9,7 @@ import { tasksLayoutRoute } from '@/routes/tasks.layout'
 import { tasksRoute } from '@/routes/tasks.index'
 import { tasksListRoute } from '@/routes/tasks.list'
 import { taskDetailRoute } from '@/routes/tasks.$taskId'
+import { tasksNewRoute } from '@/routes/tasks.new'
 import { rootRoute } from '@/routes/root'
 import { getInitialAuthFromStorage } from '@/store/auth-store'
 
@@ -16,7 +17,12 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
   registerRoute,
-  tasksLayoutRoute.addChildren([tasksRoute, tasksListRoute, taskDetailRoute]),
+  tasksLayoutRoute.addChildren([
+    tasksRoute,
+    tasksListRoute,
+    taskDetailRoute,
+    tasksNewRoute,
+  ]),
 ])
 
 const queryClient = new QueryClient({

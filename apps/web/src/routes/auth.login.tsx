@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createRoute, Link, useRouter } from '@tanstack/react-router'
+import { createRoute, Link, redirect, useRouter } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -7,7 +7,6 @@ import { StatefulButton } from '@/components/ui/stateful-button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
 import { rootRoute } from '@/routes/root'
 import { useAuthStore } from '@/store/auth-store'
 import { loginMutationFn } from '@/lib/queries'
@@ -27,6 +26,16 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
+  beforeLoad: ({ context }) => {
+    const isAuthenticated = context.queryClient.getQueryData<boolean>([
+      'auth',
+      'isAuthenticated',
+    ])
+
+    if (isAuthenticated) {
+      throw redirect({ to: '/tasks' })
+    }
+  },
   component: LoginPage,
 })
 
