@@ -1,6 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { io, Socket } from 'socket.io-client'
+import { create } from 'zustand'
 import { useToast } from '@/components/ui/toast'
+import { TaskStatus } from '@/lib/task-types'
+
+let lastLocalTaskUpdate: { taskId: string; at: number } | null = null
+
+export function markLocalTaskUpdate(taskId: string) {
+  lastLocalTaskUpdate = { taskId, at: Date.now() }
+}
 
 type NotificationEvent =
   | {
@@ -15,7 +24,7 @@ type NotificationEvent =
       payload: {
         taskId: string
         title: string
-        status: string
+        status: TaskStatus
       }
     }
   | {
@@ -27,26 +36,49 @@ type NotificationEvent =
       }
     }
 
+type NotificationUiState = {
+  lastUpdatedTaskId: string | null
+  setLastUpdatedTaskId: (id: string | null) => void
+}
+
+export const useNotificationUiStore = create<NotificationUiState>((set) => ({
+  lastUpdatedTaskId: null,
+  setLastUpdatedTaskId: (id) => set({ lastUpdatedTaskId: id }),
+}))
+
 export function useNotificationsSocket(userId: string | null) {
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const socketRef = useRef<Socket | null>(null)
 
   useEffect(() => {
     if (!userId) return
 
-    const wsUrl =
+    const url =
       window.location.protocol === 'https:'
-        ? `wss://${window.location.hostname}:3004`
-        : `ws://${window.location.hostname}:3004`
+        ? `https://${window.location.hostname}:3004`
+        : `http://${window.location.hostname}:3004`
 
-    const socket = new WebSocket(
-      `${wsUrl}?userId=${encodeURIComponent(userId)}`
-    )
+    const socket = io(url, {
+      transports: ['websocket'],
+      query: { userId },
+      autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+    })
 
-    socket.onmessage = (event) => {
+    socketRef.current = socket
+
+    const statusToLabel: Record<TaskStatus, string> = {
+      [TaskStatus.TODO]: 'A Fazer',
+      [TaskStatus.IN_PROGRESS]: 'Em Progresso',
+      [TaskStatus.REVIEW]: 'Em Revisão',
+      [TaskStatus.DONE]: 'Concluída',
+    }
+
+    const handleEvent = (data: NotificationEvent) => {
       try {
-        const data = JSON.parse(event.data) as NotificationEvent
-
         if (data.type === 'task:created') {
           toast({
             title: 'Nova tarefa',
@@ -54,15 +86,44 @@ export function useNotificationsSocket(userId: string | null) {
           })
           queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false })
         } else if (data.type === 'task:updated') {
+          if (
+            lastLocalTaskUpdate &&
+            lastLocalTaskUpdate.taskId === data.payload.taskId &&
+            Date.now() - lastLocalTaskUpdate.at < 1000
+          ) {
+            lastLocalTaskUpdate = null
+            queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false })
+            queryClient.invalidateQueries({
+              queryKey: ['task', data.payload.taskId],
+              exact: false,
+            })
+            return
+          }
+          const title =
+            data.payload.title && data.payload.title.trim().length > 0
+              ? data.payload.title
+              : 'Tarefa atualizada'
+          const status = data.payload.status
+          const label = statusToLabel[status] ?? String(status)
+
           toast({
             title: 'Tarefa atualizada',
-            description: `${data.payload.title} (${data.payload.status})`,
+            description: `${title} → ${label}`,
           })
           queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false })
           queryClient.invalidateQueries({
             queryKey: ['task', data.payload.taskId],
             exact: false,
           })
+
+          const store = useNotificationUiStore.getState()
+          store.setLastUpdatedTaskId(data.payload.taskId)
+          setTimeout(() => {
+            const current = useNotificationUiStore.getState().lastUpdatedTaskId
+            if (current === data.payload.taskId) {
+              useNotificationUiStore.getState().setLastUpdatedTaskId(null)
+            }
+          }, 2500)
         } else if (data.type === 'comment:new') {
           toast({
             title: 'Novo comentário',
@@ -73,13 +134,25 @@ export function useNotificationsSocket(userId: string | null) {
             exact: false,
           })
         }
-      } catch {
-        // noop
-      }
+      } catch {}
     }
 
+    socket.on('task:created', (payload: any) =>
+      handleEvent({ type: 'task:created', payload })
+    )
+    socket.on('task:updated', (payload: any) =>
+      handleEvent({ type: 'task:updated', payload })
+    )
+    socket.on('comment:new', (payload: any) =>
+      handleEvent({ type: 'comment:new', payload })
+    )
+
     return () => {
-      socket.close()
+      socket.off('task:created')
+      socket.off('task:updated')
+      socket.off('comment:new')
+      socket.disconnect()
+      socketRef.current = null
     }
   }, [userId, queryClient, toast])
 }
