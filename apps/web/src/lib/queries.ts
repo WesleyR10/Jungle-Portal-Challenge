@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/api'
+import type { TaskPriority, TaskStatus } from '@/lib/task-types'
 
 export type LoginPayload = {
   email: string
@@ -30,12 +31,28 @@ export function registerMutationFn(data: RegisterPayload) {
   })
 }
 
+export type UserListItem = {
+  id: string
+  name: string
+}
+
+export function usersListQueryOptions() {
+  return {
+    queryKey: ['users'] as const,
+    queryFn: () =>
+      apiFetch<UserListItem[]>('/api/auth/users', {
+        auth: true,
+      }),
+  }
+}
+
 export type TaskItem = {
   id: string
   title: string
   description: string
-  status: string
-  priority: string
+  status: TaskStatus
+  priority: TaskPriority
+  assigneeIds: string[]
 }
 
 export type TasksResponse = {
@@ -59,8 +76,9 @@ export type TaskDetail = {
   id: string
   title: string
   description: string
-  status: string
-  priority: string
+  status: TaskStatus
+  priority: TaskPriority
+  assigneeIds: string[]
 }
 
 export function taskDetailQueryOptions(taskId: string) {
@@ -120,8 +138,8 @@ export function createCommentMutationFn(taskId: string) {
 export type UpdateTaskPayload = {
   title?: string
   description?: string
-  status?: string
-  priority?: string
+  status?: TaskStatus
+  priority?: TaskPriority
   dueDate?: string
   assigneeIds?: string[]
 }
@@ -133,4 +151,21 @@ export function updateTaskMutationFn(taskId: string) {
       body: JSON.stringify(data),
       auth: true,
     })
+}
+
+export type CreateTaskPayload = {
+  title: string
+  description?: string
+  dueDate?: string
+  priority: TaskPriority
+  status?: TaskStatus
+  assigneeIds: string[]
+}
+
+export function createTaskMutationFn(data: CreateTaskPayload) {
+  return apiFetch<void>('/api/tasks', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    auth: true,
+  })
 }
