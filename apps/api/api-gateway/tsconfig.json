@@ -1,0 +1,16 @@
+{
+  "extends": "@jungle/tsconfig/nest.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@jungle/auth-module": ["../../../packages/auth-module/src"],
+      "@jungle/types": ["../../../packages/types/src"]
+    },
+    "outDir": "./dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  },
+  "include": ["src", "test"],
+  "exclude": ["node_modules", "dist"]
+}
