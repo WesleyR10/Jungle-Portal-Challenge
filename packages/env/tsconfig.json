@@ -1,0 +1,12 @@
+{
+  "extends": "@jungle/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "module": "ES2020",
+    "target": "ES2020"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
