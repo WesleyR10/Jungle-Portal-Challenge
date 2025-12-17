@@ -29,9 +29,9 @@ npm install
 cp .env.example .env
 ```
 
-Edite `.env` se necessário (portas, credenciais de banco, RabbitMQ, chaves JWT, etc.).
+Edite arquivos `.env.example` para `.env`.
 
-3. Subir infraestrutura e serviços com Docker:
+3. Subir infraestrutura e serviços com Docker (inclui PostgreSQL e RabbitMQ):
 
 ```bash
 npm run dev:docker:up
@@ -46,7 +46,21 @@ Isso sobe:
 - Notifications Service
 - API Gateway
 
-4. Rodar o front‑end localmente:
+4. Rodar migrations do banco de dados (com o PostgreSQL já rodando via Docker):
+
+```bash
+npm run migrate:all:run
+```
+
+5. Popular o banco com dados de exemplo (seed):
+
+```bash
+npm run seed:all
+```
+
+Isso limpa e recria os usuários e dados de tarefas de desenvolvimento.
+
+6. Rodar o front‑end localmente:
 
 Em outro terminal:
 
@@ -57,6 +71,30 @@ npm run dev
 ```
 
 Por padrão, o Vite expõe a aplicação em `http://localhost:5173` (ou porta equivalente mostrada no terminal).
+
+---
+
+## Usuários de teste (seed)
+
+Ao rodar o comando de seed na raiz:
+
+```bash
+npm run seed:all
+```
+
+o serviço de autenticação cria automaticamente os seguintes usuários fixos para facilitar os testes:
+
+| Nome    | Email               | Senha        |
+| ------- | ------------------- | ------------ |
+| Alice   | alice@example.com   | Password123! |
+| Bob     | bob@example.com     | Password123! |
+| Charlie | charlie@example.com | Password123! |
+| Diana   | diana@example.com   | Password123! |
+
+Use esses dados para autenticar via:
+
+- `POST /api/auth/login` no Gateway, ou
+- tela de login do front‑end.
 
 5. Acessos rápidos:
 
