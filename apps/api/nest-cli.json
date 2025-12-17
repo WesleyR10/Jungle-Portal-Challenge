@@ -1,0 +1,47 @@
+{
+  "monorepo": true,
+  "root": ".",
+  "sourceRoot": "api-gateway/src",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "api-gateway/tsconfig.json"
+  },
+  "projects": {
+    "api-gateway": {
+      "type": "application",
+      "root": "api-gateway",
+      "entryFile": "main",
+      "sourceRoot": "api-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "api-gateway/tsconfig.json"
+      }
+    },
+    "auth-service": {
+      "type": "application",
+      "root": "auth-service",
+      "entryFile": "main",
+      "sourceRoot": "auth-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "auth-service/tsconfig.json"
+      }
+    },
+    "tasks-service": {
+      "type": "application",
+      "root": "tasks-service",
+      "entryFile": "main",
+      "sourceRoot": "tasks-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "tasks-service/tsconfig.json"
+      }
+    },
+    "notifications-service": {
+      "type": "application",
+      "root": "notifications-service",
+      "entryFile": "main",
+      "sourceRoot": "notifications-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "notifications-service/tsconfig.json"
+      }
+    }
+  }
+}
