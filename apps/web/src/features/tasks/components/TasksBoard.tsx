@@ -1,15 +1,15 @@
-import { useState } from 'react'
-import { createPortal } from 'react-dom'
-import { Link } from '@tanstack/react-router'
-import { Trash2 } from 'lucide-react'
 import {
   DragDropContext,
   Draggable,
+  type DraggableProvided,
   Droppable,
   type DroppableProvided,
-  type DraggableProvided,
 } from '@hello-pangea/dnd'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Link } from '@tanstack/react-router'
+import { Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { createPortal } from 'react-dom'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,11 +21,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { TasksBoardHeader } from '@/features/tasks/components/TasksBoardHeader'
 import { useTasksBoard } from '@/features/tasks/hooks/use-tasks-board'
 import { TaskPriority } from '@/lib/task-types'
-import { TasksBoardHeader } from '@/features/tasks/components/TasksBoardHeader'
 
 export function TasksBoard() {
   const {

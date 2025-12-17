@@ -1,12 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { AssigneesMultiSelect } from '@/components/assignees-multi-select'
-import { TaskPriority, TaskStatus } from '@/lib/task-types'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { GlowInputWrapper } from '@/components/ui/glow-input-wrapper'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useTaskDetail } from '@/features/tasks/hooks/use-task-detail'
+import { TaskPriority, TaskStatus } from '@/lib/task-types'
 
 export function TaskDetailPage() {
   const {

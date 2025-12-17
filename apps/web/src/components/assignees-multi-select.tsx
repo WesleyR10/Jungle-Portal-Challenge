@@ -1,7 +1,8 @@
+import { User, Users } from 'lucide-react'
 import { useMemo } from 'react'
-import { Users, User } from 'lucide-react'
-import { cn } from '@/lib/utils'
+
 import type { UserListItem } from '@/lib/queries'
+import { cn } from '@/lib/utils'
 
 type AssigneesMultiSelectProps = {
   users: UserListItem[] | undefined

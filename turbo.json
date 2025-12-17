@@ -1,6 +1,23 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "API_GATEWAY_PORT",
+    "AUTH_SERVICE_PORT",
+    "NOTIFICATIONS_PORT",
+    "DB_HOST",
+    "DB_PORT",
+    "DB_USER",
+    "DB_PASSWORD",
+    "DB_NAME",
+    "RABBITMQ_URL",
+    "JWT_PRIVATE_KEY",
+    "JWT_PUBLIC_KEY",
+    "JWT_EXPIRES_IN",
+    "JWT_REFRESH_EXPIRES_IN"
+  ],
+  "globalDependencies": [".env", "**/.env.*local"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

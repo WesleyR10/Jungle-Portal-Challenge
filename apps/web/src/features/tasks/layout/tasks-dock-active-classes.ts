@@ -5,4 +5,3 @@ export function getDockButtonClasses(isActive: boolean) {
 
   return 'h-8 w-8 rounded-full text-slate-400 hover:bg-emerald-500/15 hover:text-emerald-200'
 }
-

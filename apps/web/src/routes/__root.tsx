@@ -1,5 +1,6 @@
-import { HeadContent, createRootRouteWithContext } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, HeadContent } from '@tanstack/react-router'
+
 import App from '@/App'
 
 export interface RouterContext {

@@ -1,20 +1,21 @@
-import { useEffect, useMemo } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
+import { useForm } from 'react-hook-form'
+
+import {
+  type TaskCommentFormValues,
+  taskCommentSchema,
+} from '@/features/tasks/validation/task-comment-schema'
+import { useNotificationUiStore } from '@/lib/notifications'
 import {
   createCommentMutationFn,
   taskCommentsQueryOptions,
   taskDetailQueryOptions,
   usersListQueryOptions,
 } from '@/lib/queries'
-import { useNotificationUiStore } from '@/lib/notifications'
-import { taskDetailRoute } from '@/routes/index'
-import {
-  taskCommentSchema,
-  type TaskCommentFormValues,
-} from '@/features/tasks/validation/task-comment-schema'
 import { taskPriorityToLabel, taskStatusToLabel } from '@/lib/task-labels'
+import { taskDetailRoute } from '@/routes/index'
 
 export function useTaskDetail() {
   const { taskId } = taskDetailRoute.useParams()

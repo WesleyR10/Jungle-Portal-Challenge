@@ -1,16 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
+
 import { useToast } from '@/components/ui/toast'
-import { TaskPriority } from '@/lib/task-types'
-import { createTaskMutationFn, usersListQueryOptions } from '@/lib/queries'
-import {
-  createTaskSchema,
-  type CreateTaskFormValues,
-} from '@/features/tasks/validation/create-task-schema'
-import { useAuthStore } from '@/store/auth-store'
 import { getUserIdFromToken } from '@/features/tasks/hooks/use-tasks-board'
+import {
+  type CreateTaskFormValues,
+  createTaskSchema,
+} from '@/features/tasks/validation/create-task-schema'
+import { createTaskMutationFn, usersListQueryOptions } from '@/lib/queries'
+import { TaskPriority } from '@/lib/task-types'
+import { useAuthStore } from '@/store/auth-store'
 
 export function useCreateTaskForm() {
   const router = useRouter()

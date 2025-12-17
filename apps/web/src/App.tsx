@@ -1,9 +1,10 @@
 import { HeadContent, Outlet } from '@tanstack/react-router'
+
+import logo from '@/assets/logo.svg'
+import { ModeToggle } from '@/components/ui/mode-toggle'
 import { ToastViewport } from '@/components/ui/toast'
 import { useNotificationsSocket } from '@/lib/notifications'
 import { useAuthStore } from '@/store/auth-store'
-import { ModeToggle } from '@/components/ui/mode-toggle'
-import logo from '@/assets/logo.svg'
 
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)

@@ -1,9 +1,10 @@
-import { Mail, User, Lock } from 'lucide-react'
+import { Lock, Mail, User } from 'lucide-react'
+
+import { Card, CardContent } from '@/components/ui/card'
+import { GlowInputWrapper } from '@/components/ui/glow-input-wrapper'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { StatefulButton } from '@/components/ui/stateful-button'
-import { Card, CardContent } from '@/components/ui/card'
-import { GlowInputWrapper } from '@/components/ui/glow-input-wrapper'
 import { useRegisterForm } from '@/features/auth/hooks/use-register-form'
 
 export function RegisterForm() {

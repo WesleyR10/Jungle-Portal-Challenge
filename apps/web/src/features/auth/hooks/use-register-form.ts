@@ -1,14 +1,15 @@
-import { useMutation } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
-import {
-  registerSchema,
-  type RegisterFormValues,
-} from '@/features/auth/validation/register-schema'
-import { registerMutationFn } from '@/lib/queries'
-import type { ApiError } from '@/lib/api'
+import { useForm } from 'react-hook-form'
+
 import { useToast } from '@/components/ui/toast'
+import {
+  type RegisterFormValues,
+  registerSchema,
+} from '@/features/auth/validation/register-schema'
+import type { ApiError } from '@/lib/api'
+import { registerMutationFn } from '@/lib/queries'
 
 export function useRegisterForm() {
   const { toast } = useToast()

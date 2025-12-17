@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
+
+import logo from '@/assets/logo.svg'
 import { ModeToggle } from '@/components/ui/mode-toggle'
 import { LoginForm } from '@/features/auth/components/LoginForm'
-import logo from '@/assets/logo.svg'
 
 export function LoginPage() {
   return (

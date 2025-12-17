@@ -1,19 +1,20 @@
-import { useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { DropResult } from '@hello-pangea/dnd'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
+
 import { useToast } from '@/components/ui/toast'
 import {
-  tasksListQueryOptions,
-  type TaskItem,
-  updateTaskMutationFn,
-  deleteTaskMutationFn,
-} from '@/lib/queries'
-import {
-  useNotificationUiStore,
   markLocalTaskUpdate,
+  useNotificationUiStore,
 } from '@/lib/notifications'
-import { TaskPriority, TaskStatus } from '@/lib/task-types'
+import {
+  deleteTaskMutationFn,
+  type TaskItem,
+  tasksListQueryOptions,
+  updateTaskMutationFn,
+} from '@/lib/queries'
 import { taskStatusToLabel } from '@/lib/task-labels'
+import { TaskPriority, TaskStatus } from '@/lib/task-types'
 import { useAuthStore } from '@/store/auth-store'
 
 export function getUserIdFromToken(token: string | null): string | null {

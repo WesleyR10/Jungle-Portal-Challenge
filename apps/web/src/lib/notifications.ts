@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { create } from 'zustand'
+
 import { useToast } from '@/components/ui/toast'
-import { TaskStatus } from '@/lib/task-types'
 import { taskStatusToLabel } from '@/lib/task-labels'
+import { TaskStatus } from '@/lib/task-types'
 
 let lastLocalTaskUpdate: { taskId: string; at: number } | null = null
 
@@ -50,7 +51,8 @@ export const useNotificationUiStore = create<NotificationUiState>((set) => ({
   setLastUpdatedTaskId: (id) => set({ lastUpdatedTaskId: id }),
   typingTaskId: null,
   typingUserId: null,
-  setTyping: (taskId, userId) => set({ typingTaskId: taskId, typingUserId: userId }),
+  setTyping: (taskId, userId) =>
+    set({ typingTaskId: taskId, typingUserId: userId }),
 }))
 
 export function useNotificationsSocket(userId: string | null) {

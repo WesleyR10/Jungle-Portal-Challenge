@@ -44,14 +44,70 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: apps/api-gateway/Dockerfile
+      dockerfile: apps/api/api-gateway/Dockerfile
+      target: runner
     container_name: jungle-api-gateway
     environment:
-      DATABASE_URL: postgres://${DB_USER:-jungle}:${DB_PASSWORD:-jungle_password}@postgres:5432/${DB_NAME:-jungle_db}
+      API_GATEWAY_PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-jungle}
+      DB_PASSWORD: ${DB_PASSWORD:-jungle_password}
+      DB_NAME: ${DB_NAME:-jungle_db}
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-jungle}:${RABBITMQ_PASS:-jungle_password}@rabbitmq:5672
-      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
     ports:
       - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - jungle-network-prod
+    restart: always
+
+  tasks-service:
+    build:
+      context: .
+      dockerfile: apps/api/tasks-service/Dockerfile
+      target: runner
+    container_name: jungle-tasks-service
+    environment:
+      TASKS_SERVICE_PORT: 3002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-jungle}
+      DB_PASSWORD: ${DB_PASSWORD:-jungle_password}
+      DB_NAME: ${DB_NAME:-jungle_db}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-jungle}:${RABBITMQ_PASS:-jungle_password}@rabbitmq:5672
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - jungle-network-prod
+    restart: always
+
+  notifications-service:
+    build:
+      context: .
+      dockerfile: apps/api/notifications-service/Dockerfile
+      target: runner
+    container_name: jungle-notifications-service
+    environment:
+      NOTIFICATIONS_SERVICE_PORT: 3004
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-jungle}
+      DB_PASSWORD: ${DB_PASSWORD:-jungle_password}
+      DB_NAME: ${DB_NAME:-jungle_db}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-jungle}:${RABBITMQ_PASS:-jungle_password}@rabbitmq:5672
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,6 +124,35 @@ services:
     container_name: jungle-web
     ports:
       - "8080:80"
+    networks:
+      - jungle-network-prod
+    restart: always
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/api/auth-service/Dockerfile
+      target: runner
+    container_name: jungle-auth-service
+    environment:
+      AUTH_SERVICE_PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-jungle}
+      DB_PASSWORD: ${DB_PASSWORD:-jungle_password}
+      DB_NAME: ${DB_NAME:-jungle_db}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-jungle}:${RABBITMQ_PASS:-jungle_password}@rabbitmq:5672
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - jungle-network-prod
     restart: always

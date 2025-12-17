@@ -1,16 +1,17 @@
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+
 import {
   indexRoute,
   loginRoute,
   registerRoute,
-  tasksLayoutRoute,
-  tasksRoute,
-  tasksListRoute,
   taskDetailRoute,
+  tasksLayoutRoute,
+  tasksListRoute,
   tasksNewRoute,
+  tasksRoute,
 } from '@/routes/index'
 import { rootRoute } from '@/routes/root'
 import { getInitialAuthFromStorage } from '@/store/auth-store'

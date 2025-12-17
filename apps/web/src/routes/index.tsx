@@ -1,14 +1,16 @@
-import { z } from 'zod'
 import { createRoute, redirect } from '@tanstack/react-router'
-import { rootRoute } from './root'
+import { z } from 'zod'
+
 import { LoginPage } from '@/features/auth/pages/login/LoginPage'
 import { RegisterPage } from '@/features/auth/pages/register/RegisterPage'
 import { TasksLayout } from '@/features/tasks/layout/TasksLayout'
 import { TasksBoardPage } from '@/features/tasks/pages/board/TasksBoardPage'
-import { TasksListPage } from '@/features/tasks/pages/list/TasksListPage'
 import { TaskDetailPage } from '@/features/tasks/pages/detail/TaskDetailPage'
+import { TasksListPage } from '@/features/tasks/pages/list/TasksListPage'
 import { TasksNewPage } from '@/features/tasks/pages/new/TasksNewPage'
 import { getInitialAuthFromStorage } from '@/store/auth-store'
+
+import { rootRoute } from './root'
 
 export const indexRoute = createRoute({
   getParentRoute: () => rootRoute,

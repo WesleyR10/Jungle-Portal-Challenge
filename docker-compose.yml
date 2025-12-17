@@ -5,9 +5,9 @@ services:
     image: postgres:17-alpine
     container_name: jungle-postgres
     environment:
-      POSTGRES_USER: ${DB_USER:-jungle}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-jungle_password}
-      POSTGRES_DB: ${DB_NAME:-jungle_db}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -15,17 +15,16 @@ services:
     networks:
       - jungle-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U jungle"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
       interval: 5s
       timeout: 5s
-      retries: 5
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: jungle-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-jungle}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-jungle_password}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -37,7 +36,145 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 5
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api/api-gateway/Dockerfile
+      target: development
+      
+    container_name: jungle-api-gateway-dev
+    environment:
+      CONFIG_FROM_ENV_ONLY: "true"
+      API_GATEWAY_PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672
+      AUTH_SERVICE_URL: http://auth-service:3001
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - jungle-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app/apps/api/api-gateway
+    command: ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/main.ts"]
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/api/auth-service/Dockerfile
+      target: development
+      
+    container_name: jungle-auth-service-dev
+    environment:
+      CONFIG_FROM_ENV_ONLY: "true"
+      AUTH_SERVICE_PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - jungle-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app/apps/api/auth-service
+    command: ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/main.ts"]
+
+  tasks-service:
+    build:
+      context: .
+      dockerfile: apps/api/tasks-service/Dockerfile
+      target: development
+    container_name: jungle-tasks-service-dev
+    environment:
+      CONFIG_FROM_ENV_ONLY: "false"
+      TASKS_SERVICE_PORT: 3002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - jungle-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app/apps/api/tasks-service
+    command: ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/main.ts"]
+
+  notifications-service:
+    build:
+      context: .
+      dockerfile: apps/api/notifications-service/Dockerfile
+      target: development
+    container_name: jungle-notifications-service-dev
+    environment:
+      CONFIG_FROM_ENV_ONLY: "false"
+      NOTIFICATIONS_SERVICE_PORT: 3004
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - jungle-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app/apps/api/notifications-service
+    command: ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/main.ts"]
 
 volumes:
   postgres_data:

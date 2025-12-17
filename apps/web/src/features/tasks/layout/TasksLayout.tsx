@@ -1,5 +1,11 @@
-import { Outlet, Link, useRouterState } from '@tanstack/react-router'
-import { useAuthStore } from '@/store/auth-store'
+import { Link, Outlet, useRouterState } from '@tanstack/react-router'
+import {
+  ClipboardList,
+  LayoutDashboard,
+  ListChecks,
+  LogOut,
+} from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -7,13 +13,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import {
-  ClipboardList,
-  LayoutDashboard,
-  ListChecks,
-  LogOut,
-} from 'lucide-react'
 import { getDockButtonClasses } from '@/features/tasks/layout/tasks-dock-active-classes'
+import { useAuthStore } from '@/store/auth-store'
 
 export function TasksLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
