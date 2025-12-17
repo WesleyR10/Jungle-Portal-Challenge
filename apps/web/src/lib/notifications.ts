@@ -4,6 +4,7 @@ import { io, Socket } from 'socket.io-client'
 import { create } from 'zustand'
 import { useToast } from '@/components/ui/toast'
 import { TaskStatus } from '@/lib/task-types'
+import { taskStatusToLabel } from '@/lib/task-labels'
 
 let lastLocalTaskUpdate: { taskId: string; at: number } | null = null
 
@@ -39,11 +40,17 @@ type NotificationEvent =
 type NotificationUiState = {
   lastUpdatedTaskId: string | null
   setLastUpdatedTaskId: (id: string | null) => void
+  typingTaskId: string | null
+  typingUserId: string | null
+  setTyping: (taskId: string | null, userId: string | null) => void
 }
 
 export const useNotificationUiStore = create<NotificationUiState>((set) => ({
   lastUpdatedTaskId: null,
   setLastUpdatedTaskId: (id) => set({ lastUpdatedTaskId: id }),
+  typingTaskId: null,
+  typingUserId: null,
+  setTyping: (taskId, userId) => set({ typingTaskId: taskId, typingUserId: userId }),
 }))
 
 export function useNotificationsSocket(userId: string | null) {
@@ -60,7 +67,7 @@ export function useNotificationsSocket(userId: string | null) {
         : `http://${window.location.hostname}:3004`
 
     const socket = io(url, {
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
       query: { userId },
       autoConnect: true,
       reconnection: true,
@@ -69,13 +76,11 @@ export function useNotificationsSocket(userId: string | null) {
     })
 
     socketRef.current = socket
+    ;(window as any).jungleSocket = socket
+    socket.on('connect', () => {})
+    socket.on('disconnect', () => {})
 
-    const statusToLabel: Record<TaskStatus, string> = {
-      [TaskStatus.TODO]: 'A Fazer',
-      [TaskStatus.IN_PROGRESS]: 'Em Progresso',
-      [TaskStatus.REVIEW]: 'Em Revisão',
-      [TaskStatus.DONE]: 'Concluída',
-    }
+    const statusToLabel = taskStatusToLabel
 
     const handleEvent = (data: NotificationEvent) => {
       try {
@@ -129,10 +134,28 @@ export function useNotificationsSocket(userId: string | null) {
             title: 'Novo comentário',
             description: `Novo comentário em uma tarefa`,
           })
-          queryClient.invalidateQueries({
-            queryKey: ['task-comments'],
-            exact: false,
-          })
+          const taskId = data.payload.taskId
+          if (taskId) {
+            queryClient.invalidateQueries({
+              queryKey: ['task-comments', taskId],
+            })
+            try {
+              const hasData = !!queryClient.getQueryData([
+                'task-comments',
+                taskId,
+                1,
+                20,
+              ])
+              queryClient.refetchQueries({
+                queryKey: ['task-comments', taskId],
+                type: 'active',
+              })
+            } catch {}
+          } else {
+            queryClient.invalidateQueries({
+              queryKey: ['task-comments'],
+            })
+          }
         }
       } catch {}
     }
@@ -143,14 +166,31 @@ export function useNotificationsSocket(userId: string | null) {
     socket.on('task:updated', (payload: any) =>
       handleEvent({ type: 'task:updated', payload })
     )
-    socket.on('comment:new', (payload: any) =>
+    socket.on('comment:new', (payload: any) => {
       handleEvent({ type: 'comment:new', payload })
-    )
+    })
+
+    socket.on('task:typing', (payload: any) => {
+      try {
+        const taskId = payload?.taskId as string | undefined
+        const userId = payload?.userId as string | undefined
+        if (!taskId || !userId) return
+        const store = useNotificationUiStore.getState()
+        store.setTyping(taskId, userId)
+        setTimeout(() => {
+          const state = useNotificationUiStore.getState()
+          if (state.typingTaskId === taskId && state.typingUserId === userId) {
+            useNotificationUiStore.getState().setTyping(null, null)
+          }
+        }, 2000)
+      } catch {}
+    })
 
     return () => {
       socket.off('task:created')
       socket.off('task:updated')
       socket.off('comment:new')
+      socket.off('task:typing')
       socket.disconnect()
       socketRef.current = null
     }

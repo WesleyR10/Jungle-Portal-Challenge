@@ -94,6 +94,8 @@ export function taskDetailQueryOptions(taskId: string) {
 export type Comment = {
   id: string
   content: string
+  taskId: string
+  authorId: string
   authorName: string
   createdAt: string
 }
@@ -105,6 +107,38 @@ export type CommentsResponse = {
   size: number
 }
 
+type CommentApi = {
+  id: string
+  content: string
+  taskId: string
+  authorId: string
+  created_at: string
+}
+
+type CommentsApiResponse = {
+  data: CommentApi[]
+  total: number
+  page: number
+  size: number
+}
+
+function normalizeComment(raw: CommentApi): Comment {
+  return {
+    id: String(raw.id),
+    content: String(raw.content ?? ''),
+    taskId: String(raw.taskId),
+    authorId: String(raw.authorId),
+    authorName: String(raw.authorId),
+    createdAt: String(
+      // API devolve created_at; normalizamos para string ISO
+      (raw as any).createdAt ??
+        raw.created_at ??
+        (raw as any).createdAtISO ??
+        new Date().toISOString(),
+    ),
+  }
+}
+
 export function taskCommentsQueryOptions(
   taskId: string,
   page: number,
@@ -112,13 +146,22 @@ export function taskCommentsQueryOptions(
 ) {
   return {
     queryKey: ['task-comments', taskId, page, size] as const,
-    queryFn: () =>
-      apiFetch<CommentsResponse>(
+    queryFn: async () => {
+      const res = await apiFetch<CommentsApiResponse>(
         `/api/tasks/${taskId}/comments?page=${page}&size=${size}`,
         {
           auth: true,
         }
-      ),
+      )
+      const rawItems = Array.isArray(res.data) ? res.data : []
+      const items = rawItems.map(normalizeComment)
+      return {
+        items,
+        total: res?.total ?? items.length,
+        page: res?.page ?? page,
+        size: res?.size ?? size,
+      } as CommentsResponse
+    },
   }
 }
 

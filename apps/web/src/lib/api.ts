@@ -62,11 +62,6 @@ export async function apiFetch<T>(
         `Bearer ${accessToken}`
     }
   }
-
-  console.info('[apiFetch] request', {
-    url,
-    method: rest.method || 'GET',
-  })
   async function doRequest(): Promise<Response> {
     try {
       return await fetch(url, {
@@ -146,9 +141,5 @@ export async function apiFetch<T>(
   }
 
   const data = (await response.json()) as T
-  console.info('[apiFetch] response ok', {
-    url,
-    status: response.status,
-  })
   return data
 }
