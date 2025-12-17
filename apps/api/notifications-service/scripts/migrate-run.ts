@@ -1,0 +1,26 @@
+import path from "path";
+import dotenv from "dotenv";
+
+const rootEnvPath = path.resolve(__dirname, "../../../../.env");
+dotenv.config({ path: rootEnvPath });
+dotenv.config();
+
+import appDataSource from "../src/database/database.providers";
+
+async function main() {
+  const required = ["DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME"];
+  for (const key of required) {
+    if (!process.env[key]) {
+      throw new Error(`Missing env ${key}`);
+    }
+  }
+  await appDataSource.initialize();
+  const res = await appDataSource.runMigrations();
+  console.log(`Ran ${res.length} migration(s)`);
+  await appDataSource.destroy();
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
