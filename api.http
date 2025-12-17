@@ -1,0 +1,104 @@
+### Jungle Portal API collection
+@baseUrl = http://localhost:3000
+
+###
+# @name register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user1@example.com",
+  "username": "user1",
+  "password": "StrongPass123"
+}
+
+###
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user1@example.com",
+  "password": "StrongPass123"
+}
+
+###
+@accessToken = {{login.response.body.accessToken}}
+@refreshToken = {{login.response.body.refreshToken}}
+
+###
+# @name refresh
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###
+@jwtToken = {{accessToken}}
+
+###
+# @name createTask
+POST {{baseUrl}}/api/tasks
+Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
+
+{
+  "title": "Implement login page",
+  "description": "Create login form with React Hook Form",
+  "dueDate": "2025-12-31",
+  "priority": "MEDIUM",
+  "status": "TODO",
+  "assigneeIds": []
+}
+
+###
+@taskId = {{createTask.response.body.id}}
+
+###
+# @name listTasks
+GET {{baseUrl}}/api/tasks?page=1&size=10
+Authorization: Bearer {{jwtToken}}
+
+###
+# @name getTask
+GET {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{jwtToken}}
+
+###
+# @name updateTask
+PUT {{baseUrl}}/api/tasks/{{taskId}}
+Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
+
+{
+  "title": "Implement login page (updated)",
+  "description": "Adjust layout and validations",
+  "status": "IN_PROGRESS",
+  "priority": "HIGH"
+}
+
+###
+# @name addComment
+POST {{baseUrl}}/api/tasks/{{taskId}}/comments
+Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
+
+{
+  "content": "This task is in progress, working on validations."
+}
+
+###
+@commentTaskId = {{taskId}}
+
+###
+# @name listComments
+GET {{baseUrl}}/api/tasks/{{commentTaskId}}/comments?page=1&size=10
+Authorization: Bearer {{jwtToken}}
+
+###
+# @name deleteTask
+DELETE {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{jwtToken}}
+
