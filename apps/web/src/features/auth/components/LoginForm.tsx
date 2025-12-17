@@ -22,7 +22,7 @@ export function LoginForm() {
               E-mail
             </Label>
             <GlowInputWrapper>
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/80" />
+              <Mail className="auth-input-icon pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
               <Input
                 id="email"
                 type="email"
@@ -42,7 +42,7 @@ export function LoginForm() {
               Senha
             </Label>
             <GlowInputWrapper>
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/80" />
+              <Lock className="auth-input-icon pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
               <Input
                 id="password"
                 type="password"

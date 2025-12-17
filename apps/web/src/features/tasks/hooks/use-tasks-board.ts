@@ -6,6 +6,7 @@ import {
   tasksListQueryOptions,
   type TaskItem,
   updateTaskMutationFn,
+  deleteTaskMutationFn,
 } from '@/lib/queries'
 import {
   useNotificationUiStore,
@@ -13,6 +14,22 @@ import {
 } from '@/lib/notifications'
 import { TaskPriority, TaskStatus } from '@/lib/task-types'
 import { taskStatusToLabel } from '@/lib/task-labels'
+import { useAuthStore } from '@/store/auth-store'
+
+function getUserIdFromToken(token: string | null): string | null {
+  if (!token) return null
+  try {
+    const [, payloadBase64] = token.split('.')
+    if (!payloadBase64) return null
+    const payloadJson = atob(
+      payloadBase64.replace(/-/g, '+').replace(/_/g, '/')
+    )
+    const payload = JSON.parse(payloadJson) as { sub?: string; userId?: string }
+    return (payload.userId as string) ?? (payload.sub as string) ?? null
+  } catch {
+    return null
+  }
+}
 
 export type ColumnId = TaskStatus
 export type StatusFilter = 'ALL' | TaskStatus
@@ -36,11 +53,15 @@ type UseTasksBoardResult = {
   setPriorityFilter: (value: PriorityFilter) => void
   handleDragEnd: (result: DropResult) => void
   lastUpdatedTaskId: string | null
+  handleDeleteTask: (taskId: string) => Promise<void>
+  canDeleteTask: (task: TaskItem, columnId: ColumnId) => boolean
 }
 
 export function useTasksBoard(): UseTasksBoardResult {
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const accessToken = useAuthStore((state) => state.accessToken)
+  const userId = getUserIdFromToken(accessToken)
   const [page] = useState(1)
   const [size] = useState(50)
   const [search, setSearch] = useState('')
@@ -127,6 +148,24 @@ export function useTasksBoard(): UseTasksBoardResult {
     },
   })
 
+  const deleteTaskMutation = useMutation({
+    mutationFn: (taskId: string) => deleteTaskMutationFn(taskId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false })
+      toast({
+        title: 'Tarefa removida',
+        description: 'A tarefa foi excluída com sucesso.',
+      })
+    },
+    onError: () => {
+      toast({
+        title: 'Erro ao excluir tarefa',
+        description: 'Não foi possível excluir a tarefa. Tente novamente.',
+        variant: 'destructive',
+      })
+    },
+  })
+
   function handleDragEnd(result: DropResult) {
     const { source, destination, draggableId } = result
     if (!destination) return
@@ -189,6 +228,16 @@ export function useTasksBoard(): UseTasksBoardResult {
     }
   }
 
+  function canDeleteTask(task: TaskItem, columnId: ColumnId): boolean {
+    if (columnId !== TaskStatus.DONE) return false
+    if (!userId) return false
+    return Array.isArray(task.assigneeIds) && task.assigneeIds.includes(userId)
+  }
+
+  async function handleDeleteTask(taskId: string) {
+    await deleteTaskMutation.mutateAsync(taskId)
+  }
+
   return {
     columns,
     isLoading,
@@ -201,5 +250,7 @@ export function useTasksBoard(): UseTasksBoardResult {
     setPriorityFilter,
     handleDragEnd,
     lastUpdatedTaskId,
+    handleDeleteTask,
+    canDeleteTask,
   }
 }

@@ -134,7 +134,7 @@ function normalizeComment(raw: CommentApi): Comment {
       (raw as any).createdAt ??
         raw.created_at ??
         (raw as any).createdAtISO ??
-        new Date().toISOString(),
+        new Date().toISOString()
     ),
   }
 }
@@ -209,6 +209,13 @@ export function createTaskMutationFn(data: CreateTaskPayload) {
   return apiFetch<void>('/api/tasks', {
     method: 'POST',
     body: JSON.stringify(data),
+    auth: true,
+  })
+}
+
+export function deleteTaskMutationFn(taskId: string) {
+  return apiFetch<{ id: string }>(`/api/tasks/${taskId}`, {
+    method: 'DELETE',
     auth: true,
   })
 }

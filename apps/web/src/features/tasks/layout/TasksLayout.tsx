@@ -7,7 +7,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { ClipboardList, LayoutDashboard, ListChecks, LogOut } from 'lucide-react'
+import {
+  ClipboardList,
+  LayoutDashboard,
+  ListChecks,
+  LogOut,
+} from 'lucide-react'
 import { getDockButtonClasses } from '@/features/tasks/layout/tasks-dock-active-classes'
 
 export function TasksLayout() {
@@ -22,7 +27,7 @@ export function TasksLayout() {
 
   return (
     <TooltipProvider delayDuration={120}>
-      <div className="flex flex-1 gap-4">
+      <div className="tasks-layout flex flex-1 gap-4">
         <aside className="relative hidden w-16 flex-col items-center justify-between border-r border-emerald-500/20 bg-slate-950/80 py-4 sm:flex">
           <div className="flex flex-col items-center gap-4">
             <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-emerald-500">
@@ -213,4 +218,3 @@ export function TasksLayout() {
     </TooltipProvider>
   )
 }
-

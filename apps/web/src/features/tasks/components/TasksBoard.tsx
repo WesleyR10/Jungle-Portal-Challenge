@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from '@tanstack/react-router'
+import { Trash2 } from 'lucide-react'
 import {
   DragDropContext,
   Draggable,
@@ -8,6 +10,17 @@ import {
   type DraggableProvided,
 } from '@hello-pangea/dnd'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { useTasksBoard } from '@/features/tasks/hooks/use-tasks-board'
@@ -27,7 +40,11 @@ export function TasksBoard() {
     setPriorityFilter,
     handleDragEnd,
     lastUpdatedTaskId,
+    handleDeleteTask,
+    canDeleteTask,
   } = useTasksBoard()
+
+  const [taskIdToDelete, setTaskIdToDelete] = useState<string | null>(null)
 
   return (
     <div className="flex flex-1 flex-col gap-6">
@@ -81,7 +98,7 @@ export function TasksBoard() {
           </Button>
         </div>
       </div>
-      <div className="relative flex flex-1 gap-6 overflow-x-auto rounded-2xl border border-emerald-500/20 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.12),transparent_55%),radial-gradient(circle_at_bottom,_rgba(22,163,74,0.16),transparent_55%)] p-6 shadow-[0_0_0_1px_rgba(15,23,42,0.8)]">
+      <div className="tasks-board-surface relative flex flex-1 gap-6 overflow-x-auto rounded-2xl border border-emerald-500/20 p-6 shadow-[0_0_0_1px_rgba(15,23,42,0.8)]">
         <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent opacity-60" />
         <DragDropContext onDragEnd={handleDragEnd}>
           {columns.map((column) => (
@@ -129,6 +146,71 @@ export function TasksBoard() {
                                 dragProvided: DraggableProvided,
                                 dragSnapshot
                               ) => {
+                                const showDelete = canDeleteTask(
+                                  task,
+                                  column.id
+                                )
+
+                                const cardContent = (
+                                  <div className="flex items-start gap-2">
+                                    <div className="mt-0.5 h-6 w-0.5 rounded-full bg-gradient-to-b from-emerald-400 via-green-400 to-emerald-500 opacity-80 group-hover:opacity-100" />
+                                    <div className="flex flex-1 flex-col gap-1.5">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <div className="line-clamp-1 text-[13px] font-medium text-slate-50">
+                                          {task.title}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span
+                                            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] shadow-[0_0_12px_rgba(16,185,129,0.35)] ${
+                                              task.priority === TaskPriority.LOW
+                                                ? 'border border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
+                                                : task.priority ===
+                                                    TaskPriority.MEDIUM
+                                                  ? 'border border-sky-500/45 bg-sky-500/15 text-sky-100'
+                                                  : task.priority ===
+                                                      TaskPriority.HIGH
+                                                    ? 'border border-amber-400/60 bg-amber-500/20 text-amber-100'
+                                                    : 'border border-rose-500/70 bg-rose-600/25 text-rose-100'
+                                            }`}
+                                          >
+                                            {task.priority}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      {task.description && (
+                                        <div className="line-clamp-2 text-[11px] text-slate-300/85">
+                                          {task.description}
+                                        </div>
+                                      )}
+                                      <div className="mt-1 flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.18em] text-slate-500 group-hover:text-slate-300/90">
+                                        <span className="flex items-center gap-1">
+                                          <span className="h-1 w-1 rounded-full bg-emerald-400" />
+                                          Jungle Task
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-emerald-300/80 group-hover:text-emerald-300">
+                                            Ver detalhes
+                                          </span>
+                                          {showDelete && (
+                                            <button
+                                              type="button"
+                                              aria-label="Excluir tarefa"
+                                              className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-rose-500/60 bg-rose-600/20 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.35)] transition-colors hover:border-rose-400 hover:bg-rose-600/30 hover:text-rose-100"
+                                              onClick={(event) => {
+                                                event.preventDefault()
+                                                event.stopPropagation()
+                                                setTaskIdToDelete(task.id)
+                                              }}
+                                            >
+                                              <Trash2 className="h-3 w-3" />
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+
                                 const card = (
                                   <Link
                                     to="/tasks/$taskId"
@@ -149,45 +231,7 @@ export function TasksBoard() {
                                         : 'hover:shadow-[0_0_26px_rgba(16,185,129,0.45)]'
                                     }`}
                                   >
-                                    <div className="flex items-start gap-2">
-                                      <div className="mt-0.5 h-6 w-0.5 rounded-full bg-gradient-to-b from-emerald-400 via-green-400 to-emerald-500 opacity-80 group-hover:opacity-100" />
-                                      <div className="flex flex-1 flex-col gap-1.5">
-                                        <div className="flex items-center justify-between gap-2">
-                                          <div className="line-clamp-1 text-[13px] font-medium text-slate-50">
-                                            {task.title}
-                                          </div>
-                                          <span
-                                            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] shadow-[0_0_12px_rgba(16,185,129,0.35)] ${
-                                              task.priority === TaskPriority.LOW
-                                                ? 'border border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
-                                                : task.priority ===
-                                                    TaskPriority.MEDIUM
-                                                  ? 'border border-sky-500/45 bg-sky-500/15 text-sky-100'
-                                                  : task.priority ===
-                                                      TaskPriority.HIGH
-                                                    ? 'border border-amber-400/60 bg-amber-500/20 text-amber-100'
-                                                    : 'border border-rose-500/70 bg-rose-600/25 text-rose-100'
-                                            }`}
-                                          >
-                                            {task.priority}
-                                          </span>
-                                        </div>
-                                        {task.description && (
-                                          <div className="line-clamp-2 text-[11px] text-slate-300/85">
-                                            {task.description}
-                                          </div>
-                                        )}
-                                        <div className="mt-1 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-slate-500 group-hover:text-slate-300/90">
-                                          <span className="flex items-center gap-1">
-                                            <span className="h-1 w-1 rounded-full bg-emerald-400" />
-                                            Jungle Task
-                                          </span>
-                                          <span className="text-emerald-300/80 group-hover:text-emerald-300">
-                                            Ver detalhes
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
+                                    {cardContent}
                                   </Link>
                                 )
 
@@ -217,6 +261,38 @@ export function TasksBoard() {
             </Droppable>
           ))}
         </DragDropContext>
+        <AlertDialog
+          open={taskIdToDelete !== null}
+          onOpenChange={(open: boolean) => {
+            if (!open) {
+              setTaskIdToDelete(null)
+            }
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir tarefa</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta ação não poderá ser desfeita. Tem certeza que deseja
+                excluir esta tarefa?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-rose-600 text-rose-50 hover:bg-rose-700"
+                onClick={() => {
+                  if (taskIdToDelete) {
+                    void handleDeleteTask(taskIdToDelete)
+                  }
+                  setTaskIdToDelete(null)
+                }}
+              >
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   )

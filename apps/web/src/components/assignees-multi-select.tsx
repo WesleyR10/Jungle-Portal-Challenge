@@ -63,14 +63,16 @@ export function AssigneesMultiSelect({
             <div className="h-7 w-px bg-emerald-500/30" />
           </>
         ) : (
-          <p className="flex-1 text-xs text-muted-foreground">
+          <p className="flex-1 text-xs text-tertiary-foreground">
             Nenhum responsável definido para esta tarefa.
           </p>
         )}
 
         <div className="flex min-w-[120px] flex-col items-end gap-1 text-[10px]">
           {isLoading && (
-            <span className="text-emerald-300/80">Carregando responsáveis…</span>
+            <span className="text-emerald-300/80">
+              Carregando responsáveis…
+            </span>
           )}
           {!isLoading && primaryAssignee && (
             <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-200">
@@ -91,7 +93,7 @@ export function AssigneesMultiSelect({
             <span
               key={user.id}
               className={cn(
-                'rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-100',
+                'rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-100'
               )}
             >
               {user.name}
@@ -112,7 +114,7 @@ export function AssigneesMultiSelect({
                   'flex w-full items-center justify-between rounded-md px-2 py-1 text-xs transition',
                   active
                     ? 'bg-emerald-500/15 text-emerald-100'
-                    : 'text-slate-200 hover:bg-emerald-500/10',
+                    : 'text-slate-200 hover:bg-emerald-500/10'
                 )}
                 onClick={() => {
                   if (!onChange) return
