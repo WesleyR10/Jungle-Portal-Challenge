@@ -1,4 +1,4 @@
-import { Outlet } from '@tanstack/react-router'
+import { HeadContent, Outlet } from '@tanstack/react-router'
 import { ToastViewport } from '@/components/ui/toast'
 import { useNotificationsSocket } from '@/lib/notifications'
 import { useAuthStore } from '@/store/auth-store'
@@ -24,29 +24,32 @@ function App() {
   useNotificationsSocket(isAuthenticated && userId ? userId : null)
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      {isAuthenticated && (
-        <header className="flex items-center justify-between border-b px-6 py-4">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Jungle Gaming" className="h-6" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500">
-              Jungle Tasks
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden text-xs text-muted-foreground sm:block">
-              <span className="font-medium">Workspace</span>{' '}
-              <span className="text-emerald-500">Jungle Gaming</span>
+    <>
+      <HeadContent />
+      <div className="flex min-h-screen flex-col bg-background text-foreground">
+        {isAuthenticated && (
+          <header className="tasks-layout flex items-center justify-between border-b px-6 py-4">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="Jungle Gaming" className="h-6" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500">
+                Jungle Tasks
+              </span>
             </div>
-            <ModeToggle />
-          </div>
-        </header>
-      )}
-      <main className="flex flex-1 flex-col gap-4">
-        <Outlet />
-      </main>
-      <ToastViewport />
-    </div>
+            <div className="flex items-center gap-3">
+              <div className="hidden text-xs text-muted-foreground sm:block">
+                <span className="font-medium">Workspace</span>{' '}
+                <span className="text-emerald-500">Jungle Gaming</span>
+              </div>
+              <ModeToggle />
+            </div>
+          </header>
+        )}
+        <main className="flex flex-1 flex-col gap-4">
+          <Outlet />
+        </main>
+        <ToastViewport />
+      </div>
+    </>
   )
 }
 
