@@ -1,135 +1,290 @@
-# Turborepo starter
+## Jungle Tasks Portal – Monorepo Full‑stack
 
-This Turborepo starter is maintained by the Turborepo core team.
+Este repositório implementa um **Sistema de Gestão de Tarefas Colaborativo** inspirado no desafio Full‑stack Júnior da Jungle Gaming. A proposta é construir um sistema completo de tarefas com autenticação, microserviços, mensageria e UI moderna, organizado em um monorepo com Turborepo.
 
-## Using this example
+O projeto demonstra:
 
-Run the following command:
+- Organização de monorepo com Turborepo.
+- Microserviços Nest.js com comunicação via RabbitMQ.
+- API Gateway HTTP com Swagger.
+- Front‑end React com TanStack Router, shadcn/ui e Tailwind.
+- Notificações em tempo real via WebSocket.
+- Infraestrutura dockerizada pronta para desenvolvimento local.
 
-```sh
-npx create-turbo@latest
+---
+
+## Como rodar o projeto
+
+Passo a passo resumido para subir o ambiente localmente.
+
+1. Instalar dependências na raiz:
+
+```bash
+npm install
 ```
 
-## What's inside?
+2. Configurar variáveis de ambiente:
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+cp .env.example .env
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Edite `.env` se necessário (portas, credenciais de banco, RabbitMQ, chaves JWT, etc.).
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+3. Subir infraestrutura e serviços com Docker:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+npm run dev:docker:up
 ```
 
-### Develop
+Isso sobe:
 
-To develop all apps and packages, run the following command:
+- PostgreSQL
+- RabbitMQ (com painel de management)
+- Auth Service
+- Tasks Service
+- Notifications Service
+- API Gateway
 
-```
-cd my-turborepo
+4. Rodar o front‑end localmente:
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+Em outro terminal:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+cd apps/web
+npm install
+npm run dev
 ```
 
-### Remote Caching
+Por padrão, o Vite expõe a aplicação em `http://localhost:5173` (ou porta equivalente mostrada no terminal).
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+5. Acessos rápidos:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+- Front‑end: portal de tarefas – interface principal.
+- API Gateway:
+  - Swagger em `http://localhost:<API_GATEWAY_PORT>/api/docs`.
+  - Endpoints HTTP sob `/api/...`.
+- RabbitMQ management:
+  - `http://localhost:15672` (usuário/senha conforme `.env`).
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+---
 
+## Visão geral da arquitetura
+
+A arquitetura foi pensada para refletir um cenário real de produto, com front‑end moderno, API Gateway, microserviços desacoplados e comunicação assíncrona via broker de mensagens.
+
+- **Front‑end (`apps/web`)**
+  - React + TypeScript
+  - TanStack Router, TanStack Query
+  - shadcn/ui + Tailwind CSS
+  - WebSocket para notificações (Socket.IO client)
+
+- **Backend (`apps/api`)**
+  - API Gateway Nest.js (HTTP + Swagger)
+  - Microserviço de autenticação (`auth-service`)
+  - Microserviço de tarefas (`tasks-service`)
+  - Microserviço de notificações (`notifications-service`, WebSocket)
+  - RabbitMQ como broker de eventos
+  - PostgreSQL (TypeORM) como banco de dados
+
+- **Pacotes compartilhados (`packages/`)**
+  - `@jungle/types` – tipos/DTOs compartilhados
+  - `@jungle/auth-module` – módulo de autenticação Nest reusável
+  - `@jungle/env` – validação e tipagem de variáveis de ambiente
+
+---
+
+## Stack e requisitos principais
+
+- **Front‑end**
+  - React.js + TanStack Router
+  - shadcn/ui + Tailwind CSS
+  - react-hook-form + zod
+  - Zustand ou Context API para auth
+  - WebSocket para notificações
+
+- **Back‑end**
+  - Nest.js + TypeORM (PostgreSQL)
+  - JWT (access 15 min, refresh 7 dias) com Passport
+  - Microserviços Nest.js com RabbitMQ
+  - WebSocket Gateway
+  - DTOs com class-validator/class-transformer
+  - Rate limiting no API Gateway
+
+60→- **Infra & DevX**
+61→ - Monorepo com Turborepo
+62→ - Docker & docker-compose para subir tudo (app, DB, broker, etc.)
+63→---
+
+## Escopo funcional
+
+O sistema foi pensado para cobrir um fluxo completo de trabalho colaborativo em torno de tarefas:
+
+- **Autenticação & sessão**
+  - Cadastro e login com e‑mail, username e senha.
+  - Hash de senha com bcrypt ou argon2.
+  - Tokens:
+    - `accessToken` com expiração curta (15 minutos).
+    - `refreshToken` com expiração longa (7 dias).
+  - Endpoint de refresh para renovar sessão sem exigir login manual.
+  - Proteção de rotas no API Gateway usando JWT + Guards.
+
+- **Tarefas, comentários e histórico**
+  - CRUD completo de tarefas com campos:
+    - título, descrição, prazo (due date),
+    - prioridade (`LOW`, `MEDIUM`, `HIGH`, `URGENT`),
+    - status (`TODO`, `IN_PROGRESS`, `REVIEW`, `DONE`).
+  - Atribuição de tarefas a múltiplos usuários.
+  - Comentários por tarefa, com listagem paginada.
+  - Histórico de alterações (audit log simplificado) para entender evolução da tarefa.
+
+- **Notificações & tempo real**
+  - Publicação de eventos em RabbitMQ sempre que:
+    - uma tarefa é criada,
+    - uma tarefa é atualizada,
+    - um comentário é criado.
+  - Serviço de notificações consome os eventos, persiste o que for relevante e envia para o front via WebSocket.
+  - Notificações em tempo real quando:
+    - uma tarefa é atribuída ao usuário,
+    - o status de uma tarefa muda,
+    - há novo comentário em uma tarefa em que o usuário participa.
+
+---
+
+## Estrutura do monorepo
+
+Visão geral (detalhes adicionais em cada README específico):
+
+- `apps/web/`
+  - Front React do portal de tarefas.
+  - Documentado em: [`apps/web/README.md`](apps/web/README.md)
+
+- `apps/api/`
+  - Todos os serviços backend (Gateway, auth, tasks, notifications, config-module).
+  - Documentado em: [`apps/api/README.md`](apps/api/README.md)
+
+- `packages/`
+  - Pacotes compartilhados: tipos, auth-module, env.
+  - Documentado em: [`packages/README.md`](packages/README.md)
+
+- `config/`
+  - Tooling compartilhado (ESLint, Prettier, TSConfig, lint-staged).
+  - Documentado em: [`config/README.md`](config/README.md)
+
+Arquivos principais na raiz:
+
+- `docker-compose.yml` / `docker-compose.prod.yml` – orquestração de serviços.
+- `turbo.json` – configuração do Turborepo (tasks, cache, envs globais).
+- `package.json` – scripts de orquestração (build, migrations, docker, etc.).
+
+---
+
+## Fluxo de desenvolvimento com Turborepo
+
+O monorepo é orquestrado com Turborepo. Os comandos principais na raiz:
+
+- Desenvolvimento:
+
+```bash
+npm run dev           # roda turbo run dev para os apps relevantes
 ```
-cd my-turborepo
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+- Lint e tipos:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+npm run lint          # turbo run lint
+npm run check-types   # turbo run check-types
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+- Build:
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+npm run build:packages   # build dos pacotes em packages/
+npm run build:services   # build dos serviços em apps/api/
+npm run build:all        # build de tudo
 ```
 
-## Useful Links
+- Migrations TypeORM:
 
-Learn more about the power of Turborepo:
+```bash
+npm run migrate:all:run
+npm run migrate:all:revert
+```
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+Os detalhes de config compartilhada (ESLint, Prettier, TSConfig, lint-staged) estão em [`config/README.md`](config/README.md).
+
+---
+
+## Docker & docker-compose
+
+Todo o ambiente pode ser levantado via Docker Compose, incluindo:
+
+- API Gateway
+- Auth Service
+- Tasks Service
+- Notifications Service
+- Frontend Web
+- PostgreSQL 17
+- RabbitMQ 3.13 com painel de management
+
+Comandos principais (na raiz):
+
+```bash
+npm run dev:docker      # sobe serviços principais em modo attached
+npm run dev:docker:up   # sobe em background
+npm run dev:docker:down # derruba tudo
+
+npm run docker:build    # build das imagens
+npm run docker:rebuild  # rebuild completo e sobe em background
+```
+
+O arquivo `docker-compose.yml` foi desenhado para subir todos os serviços necessários (apps, banco e broker) com networking, volumes de dados e variáveis de ambiente adequadas para desenvolvimento local.
+
+---
+
+## Documentação por área
+
+Para aprofundar em cada parte do projeto:
+
+- Front‑end (UI, rotas, notificações):
+  - [`apps/web/README.md`](apps/web/README.md)
+
+- Backend e microsserviços:
+  - [`apps/api/README.md`](apps/api/README.md)
+
+- Pacotes compartilhados (`@jungle/types`, `@jungle/auth-module`, `@jungle/env`):
+  - [`packages/README.md`](packages/README.md)
+
+- Tooling de monorepo (ESLint, Prettier, TSConfig, lint-staged):
+  - [`config/README.md`](config/README.md)
+
+---
+
+## Endpoints HTTP e eventos WebSocket
+
+Principais contratos expostos pelo API Gateway e serviço de notificações:
+
+- **HTTP – Auth**
+  - `POST /api/auth/register`
+  - `POST /api/auth/login`
+  - `POST /api/auth/refresh`
+
+- **HTTP – Tarefas**
+  - `GET    /api/tasks?page=&size=` – lista de tarefas com paginação.
+  - `POST   /api/tasks` – cria tarefa e publica evento de criação.
+  - `GET    /api/tasks/:id` – detalhes da tarefa.
+  - `PUT    /api/tasks/:id` – atualiza tarefa e publica evento de atualização.
+  - `DELETE /api/tasks/:id` – remove tarefa.
+
+- **HTTP – Comentários**
+  - `POST /api/tasks/:id/comments` – cria comentário e publica evento de comentário criado.
+  - `GET  /api/tasks/:id/comments?page=&size` – lista comentários com paginação.
+
+- **WebSocket – Notificações**
+  - `task:created` – tarefa foi criada.
+  - `task:updated` – tarefa foi atualizada.
+  - `comment:new` – novo comentário em uma tarefa.
+
+---
+
+Para revisão de código ou apresentação, este README serve como índice principal, com links diretos para a documentação detalhada de cada parte do sistema.
