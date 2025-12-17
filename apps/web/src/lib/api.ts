@@ -1,3 +1,5 @@
+import { env } from '@/env'
+
 export type ApiError = {
   status: number
   message: string
@@ -42,7 +44,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const { auth, headers, ...rest } = init
 
-  const base = import.meta.env.VITE_API_URL
+  const base = env.VITE_API_URL
 
   if (!base) {
     throw new Error('VITE_API_URL não configurada no frontend (.env)')
