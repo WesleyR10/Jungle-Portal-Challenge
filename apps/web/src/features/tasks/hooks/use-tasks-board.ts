@@ -16,7 +16,7 @@ import { TaskPriority, TaskStatus } from '@/lib/task-types'
 import { taskStatusToLabel } from '@/lib/task-labels'
 import { useAuthStore } from '@/store/auth-store'
 
-function getUserIdFromToken(token: string | null): string | null {
+export function getUserIdFromToken(token: string | null): string | null {
   if (!token) return null
   try {
     const [, payloadBase64] = token.split('.')

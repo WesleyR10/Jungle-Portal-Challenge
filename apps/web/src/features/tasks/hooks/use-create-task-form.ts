@@ -9,11 +9,15 @@ import {
   createTaskSchema,
   type CreateTaskFormValues,
 } from '@/features/tasks/validation/create-task-schema'
+import { useAuthStore } from '@/store/auth-store'
+import { getUserIdFromToken } from '@/features/tasks/hooks/use-tasks-board'
 
 export function useCreateTaskForm() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const accessToken = useAuthStore((state) => state.accessToken)
+  const currentUserId = getUserIdFromToken(accessToken)
 
   const { data: users, isLoading: isLoadingUsers } = useQuery(
     usersListQueryOptions()
@@ -40,9 +44,17 @@ export function useCreateTaskForm() {
 
   const form = useForm<CreateTaskFormValues>({
     resolver: zodResolver(createTaskSchema),
-    defaultValues: {
-      priority: TaskPriority.MEDIUM,
-    },
+    defaultValues: (() => {
+      const assigneeIds =
+        currentUserId && typeof currentUserId === 'string'
+          ? [currentUserId]
+          : []
+
+      return {
+        priority: TaskPriority.MEDIUM,
+        assigneeIds,
+      }
+    })(),
   })
 
   return {
@@ -50,5 +62,6 @@ export function useCreateTaskForm() {
     users,
     isLoadingUsers,
     createTaskMutation,
+    currentUserId,
   }
 }

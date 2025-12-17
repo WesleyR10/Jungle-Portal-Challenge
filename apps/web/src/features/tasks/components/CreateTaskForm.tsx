@@ -16,7 +16,7 @@ import { GlowInputWrapper } from '@/components/ui/glow-input-wrapper'
 import { useCreateTaskForm } from '@/features/tasks/hooks/use-create-task-form'
 
 export function CreateTaskForm() {
-  const { form, users, isLoadingUsers, createTaskMutation } =
+  const { form, users, isLoadingUsers, createTaskMutation, currentUserId } =
     useCreateTaskForm()
   const {
     register,
@@ -205,6 +205,7 @@ export function CreateTaskForm() {
               users={users}
               isLoading={isLoadingUsers}
               value={watch('assigneeIds') || []}
+              currentUserId={currentUserId}
               onChange={(val) =>
                 setValue('assigneeIds', val, { shouldValidate: true })
               }

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Users } from 'lucide-react'
+import { Users, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { UserListItem } from '@/lib/queries'
 
@@ -8,6 +8,7 @@ type AssigneesMultiSelectProps = {
   value: string[]
   onChange?: (value: string[]) => void
   isLoading?: boolean
+  currentUserId?: string | null
 }
 
 export function AssigneesMultiSelect({
@@ -15,6 +16,7 @@ export function AssigneesMultiSelect({
   value,
   isLoading,
   onChange,
+  currentUserId,
 }: AssigneesMultiSelectProps) {
   const selectedUsers = useMemo(
     () => users?.filter((u) => value.includes(u.id)) ?? [],
@@ -74,11 +76,17 @@ export function AssigneesMultiSelect({
               Carregando responsáveis…
             </span>
           )}
-          {!isLoading && primaryAssignee && (
-            <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-200">
-              Responsável atual
-            </span>
-          )}
+          {!isLoading &&
+            primaryAssignee &&
+            (currentUserId && primaryAssignee.id === currentUserId ? (
+              <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-200">
+                Você
+              </span>
+            ) : (
+              <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-200">
+                Responsável atual
+              </span>
+            ))}
           {!isLoading && !primaryAssignee && (
             <span className="text-emerald-300/80">
               Defina um responsável no board principal
@@ -106,6 +114,7 @@ export function AssigneesMultiSelect({
         <div className="mt-3 max-h-32 overflow-y-auto border-t border-emerald-500/15 pt-2">
           {users.map((user) => {
             const active = value.includes(user.id)
+            const isCurrentUser = currentUserId === user.id
             return (
               <button
                 key={user.id}
@@ -119,6 +128,7 @@ export function AssigneesMultiSelect({
                 onClick={() => {
                   if (!onChange) return
                   if (active) {
+                    if (isCurrentUser) return
                     onChange(value.filter((id) => id !== user.id))
                   } else {
                     onChange([...value, user.id])
@@ -126,11 +136,22 @@ export function AssigneesMultiSelect({
                 }}
               >
                 <span className="truncate">{user.name}</span>
-                {active && (
-                  <span className="text-[10px] text-emerald-300">
-                    selecionado
-                  </span>
-                )}
+                <span className="flex items-center gap-1">
+                  {isCurrentUser ? (
+                    <>
+                      <User className="h-3 w-3 text-emerald-300/80" />
+                      <span className="text-[10px] text-emerald-300/80">
+                        Você
+                      </span>
+                    </>
+                  ) : (
+                    active && (
+                      <span className="text-[10px] text-emerald-300">
+                        selecionado
+                      </span>
+                    )
+                  )}
+                </span>
               </button>
             )
           })}
