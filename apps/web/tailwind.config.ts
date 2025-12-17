@@ -20,6 +20,12 @@ const config: Config = {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
         },
+        tertiary: {
+          foreground: 'hsl(var(--tertiary-foreground))',
+        },
+        highlight: {
+          foreground: 'hsl(var(--highlight-foreground))',
+        },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
