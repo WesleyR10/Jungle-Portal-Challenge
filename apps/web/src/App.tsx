@@ -2,7 +2,7 @@ import { Outlet } from '@tanstack/react-router'
 import { ToastViewport } from '@/components/ui/toast'
 import { useNotificationsSocket } from '@/lib/notifications'
 import { useAuthStore } from '@/store/auth-store'
-import { ModeToggle } from '@/components/mode-toggle'
+import { ModeToggle } from '@/components/ui/mode-toggle'
 import logo from '@/assets/logo.svg'
 
 function App() {
@@ -42,7 +42,7 @@ function App() {
           </div>
         </header>
       )}
-      <main className="flex flex-1 flex-col gap-4 px-6 py-4">
+      <main className="flex flex-1 flex-col gap-4">
         <Outlet />
       </main>
       <ToastViewport />
