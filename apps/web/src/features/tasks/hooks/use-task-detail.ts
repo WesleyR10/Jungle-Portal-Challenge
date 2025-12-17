@@ -9,7 +9,7 @@ import {
   usersListQueryOptions,
 } from '@/lib/queries'
 import { useNotificationUiStore } from '@/lib/notifications'
-import { taskDetailRoute } from '@/routes/tasks.$taskId'
+import { taskDetailRoute } from '@/routes/index'
 import {
   taskCommentSchema,
   type TaskCommentFormValues,

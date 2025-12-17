@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { tasksListQueryOptions } from '@/lib/queries'
-import { tasksListRoute } from '@/routes/tasks.list'
+import { tasksListRoute } from '@/routes/index'
 
 export function TasksListPage() {
   const { page = 1, size = 10 } = tasksListRoute.useSearch()
