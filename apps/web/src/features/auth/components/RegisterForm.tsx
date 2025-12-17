@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { StatefulButton } from '@/components/ui/stateful-button'
 import { Card, CardContent } from '@/components/ui/card'
+import { GlowInputWrapper } from '@/components/ui/glow-input-wrapper'
 import { useRegisterForm } from '@/features/auth/hooks/use-register-form'
 
 export function RegisterForm() {
@@ -20,16 +21,7 @@ export function RegisterForm() {
             <Label htmlFor="email" className="block pb-1 text-left">
               E-mail
             </Label>
-            <div
-              className="glow-input-wrap"
-              onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect()
-                const mx = e.clientX - rect.left
-                const my = e.clientY - rect.top
-                e.currentTarget.style.setProperty('--mx', `${mx}px`)
-                e.currentTarget.style.setProperty('--my', `${my}px`)
-              }}
-            >
+            <GlowInputWrapper>
               <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/80" />
               <Input
                 id="email"
@@ -39,7 +31,7 @@ export function RegisterForm() {
                 className="pl-9"
                 {...register('email')}
               />
-            </div>
+            </GlowInputWrapper>
             {errors.email && (
               <p className="text-xs text-destructive">{errors.email.message}</p>
             )}
@@ -49,16 +41,7 @@ export function RegisterForm() {
             <Label htmlFor="username" className="block pb-1 text-left">
               Usuário
             </Label>
-            <div
-              className="glow-input-wrap"
-              onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect()
-                const mx = e.clientX - rect.left
-                const my = e.clientY - rect.top
-                e.currentTarget.style.setProperty('--mx', `${mx}px`)
-                e.currentTarget.style.setProperty('--my', `${my}px`)
-              }}
-            >
+            <GlowInputWrapper>
               <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/80" />
               <Input
                 id="username"
@@ -67,7 +50,7 @@ export function RegisterForm() {
                 className="pl-9"
                 {...register('username')}
               />
-            </div>
+            </GlowInputWrapper>
             {errors.username && (
               <p className="text-xs text-destructive">
                 {errors.username.message}
@@ -79,16 +62,7 @@ export function RegisterForm() {
             <Label htmlFor="password" className="block pb-1 text-left">
               Senha
             </Label>
-            <div
-              className="glow-input-wrap"
-              onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect()
-                const mx = e.clientX - rect.left
-                const my = e.clientY - rect.top
-                e.currentTarget.style.setProperty('--mx', `${mx}px`)
-                e.currentTarget.style.setProperty('--my', `${my}px`)
-              }}
-            >
+            <GlowInputWrapper>
               <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/80" />
               <Input
                 id="password"
@@ -98,7 +72,7 @@ export function RegisterForm() {
                 className="pl-9"
                 {...register('password')}
               />
-            </div>
+            </GlowInputWrapper>
             {errors.password && (
               <p className="text-xs text-destructive">
                 {errors.password.message}
@@ -110,16 +84,7 @@ export function RegisterForm() {
             <Label htmlFor="confirmPassword" className="block pb-1 text-left">
               Confirmar senha
             </Label>
-            <div
-              className="glow-input-wrap"
-              onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect()
-                const mx = e.clientX - rect.left
-                const my = e.clientY - rect.top
-                e.currentTarget.style.setProperty('--mx', `${mx}px`)
-                e.currentTarget.style.setProperty('--my', `${my}px`)
-              }}
-            >
+            <GlowInputWrapper>
               <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/80" />
               <Input
                 id="confirmPassword"
@@ -129,7 +94,7 @@ export function RegisterForm() {
                 className="pl-9"
                 {...register('confirmPassword')}
               />
-            </div>
+            </GlowInputWrapper>
             {errors.confirmPassword && (
               <p className="text-xs text-destructive">
                 {errors.confirmPassword.message}
