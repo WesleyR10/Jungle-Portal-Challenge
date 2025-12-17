@@ -21,7 +21,8 @@
     "typeorm": "typeorm-ts-node-commonjs -d ./src/database/database.providers.ts",
     "migrate:run": "node -r ts-node/register -r tsconfig-paths/register ./scripts/migrate-run.ts",
     "migrate:revert": "node -r ts-node/register -r tsconfig-paths/register ./scripts/migrate-revert.ts",
-    "migrate:show": "node -r ts-node/register -r tsconfig-paths/register ./scripts/migrate-show.ts"
+    "migrate:show": "node -r ts-node/register -r tsconfig-paths/register ./scripts/migrate-show.ts",
+    "seed": "node -r ts-node/register -r tsconfig-paths/register ./scripts/seed.ts"
   },
   "dependencies": {
     "@jungle/auth-module": "^0.0.1",
