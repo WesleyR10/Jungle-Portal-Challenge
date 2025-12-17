@@ -41,7 +41,7 @@ export function CreateTaskForm() {
       <div className="pointer-events-none absolute inset-x-12 -top-px h-px bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
       <CardHeader className="border-b border-emerald-500/20 pb-3">
         <CardTitle className="flex items-center justify-between text-base">
-          <span>Detalhes da tarefa</span>
+          <span className="text-highlight-foreground">Detalhes da tarefa</span>
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
             Jungle Squad
           </span>
@@ -51,7 +51,9 @@ export function CreateTaskForm() {
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit as any)}>
           <div className="grid gap-4 md:grid-cols-[minmax(0,2.2fr)_minmax(0,1.2fr)]">
             <div className="space-y-1">
-              <Label htmlFor="title">Título</Label>
+              <Label htmlFor="title" className="text-highlight-foreground">
+                Título
+              </Label>
               <GlowInputWrapper>
                 <Input
                   id="title"
@@ -68,7 +70,9 @@ export function CreateTaskForm() {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="description" className="text-highlight-foreground">
+              Descrição
+            </Label>
             <GlowInputWrapper>
               <Input
                 id="description"
@@ -85,7 +89,9 @@ export function CreateTaskForm() {
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-1">
-              <Label htmlFor="dueDate">Prazo</Label>
+              <Label htmlFor="dueDate" className="text-highlight-foreground">
+                Prazo
+              </Label>
               <GlowInputWrapper>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -118,6 +124,10 @@ export function CreateTaskForm() {
                   >
                     <Calendar
                       mode="single"
+                      className="text-highlight-foreground"
+                      classNames={{
+                        chevron: 'text-emerald-50 fill-emerald-50',
+                      }}
                       selected={
                         dueDateValue ? new Date(dueDateValue) : undefined
                       }
@@ -141,7 +151,9 @@ export function CreateTaskForm() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="priority">Prioridade</Label>
+              <Label htmlFor="priority" className="text-highlight-foreground">
+                Prioridade
+              </Label>
               <GlowInputWrapper>
                 <select
                   id="priority"
@@ -162,7 +174,9 @@ export function CreateTaskForm() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="status">Status inicial</Label>
+              <Label htmlFor="status" className="text-highlight-foreground">
+                Status inicial
+              </Label>
               <GlowInputWrapper>
                 <select
                   id="status"
@@ -184,7 +198,9 @@ export function CreateTaskForm() {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="assigneeIds">Responsáveis</Label>
+            <Label htmlFor="assigneeIds" className="text-highlight-foreground">
+              Responsáveis
+            </Label>
             <AssigneesMultiSelect
               users={users}
               isLoading={isLoadingUsers}
@@ -208,7 +224,7 @@ export function CreateTaskForm() {
                   Jungle Flow
                 </span>
               </div>
-              <p className="mt-1 text-xs">
+              <p className="mt-1 text-xs text-tertiary-foreground">
                 Use títulos claros e defina prioridade para manter o squad
                 alinhado.
               </p>
