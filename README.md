@@ -2,6 +2,10 @@
 
 Este repositório implementa um **Sistema de Gestão de Tarefas Colaborativo** inspirado no desafio Full‑stack Júnior da Jungle Gaming. A proposta é construir um sistema completo de tarefas com autenticação, microserviços, mensageria e UI moderna, organizado em um monorepo com Turborepo.
 
+### Demo em vídeo
+
+- Vídeo de demonstração: https://drive.google.com/file/d/17LuvY19sWoJphDSe1rCroFGRJm5-F7UR/view?usp=sharing
+
 O projeto demonstra:
 
 - Organização de monorepo com Turborepo.
