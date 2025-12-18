@@ -29,6 +29,16 @@ export function CreateTaskForm() {
 
   const dueDateValue = watch('dueDate')
 
+  const selectedDueDate =
+    dueDateValue && /^\d{4}-\d{2}-\d{2}$/.test(dueDateValue)
+      ? (() => {
+          const [year, month, day] = dueDateValue
+            .split('-')
+            .map((part) => Number(part))
+          return new Date(year, month - 1, day)
+        })()
+      : undefined
+
   function onSubmit(
     values: Parameters<typeof handleSubmit>[0] extends (values: infer T) => any
       ? T
@@ -105,9 +115,9 @@ export function CreateTaskForm() {
                       )}
                     >
                       <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                      {dueDateValue ? (
+                      {selectedDueDate ? (
                         <span>
-                          {new Date(dueDateValue).toLocaleDateString('pt-BR', {
+                          {selectedDueDate.toLocaleDateString('pt-BR', {
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric',
@@ -129,12 +139,16 @@ export function CreateTaskForm() {
                       classNames={{
                         chevron: 'text-emerald-50 fill-emerald-50',
                       }}
-                      selected={
-                        dueDateValue ? new Date(dueDateValue) : undefined
-                      }
+                      selected={selectedDueDate}
                       onSelect={(date) => {
                         if (date) {
-                          const iso = date.toISOString().slice(0, 10)
+                          const year = date.getFullYear()
+                          const month = String(date.getMonth() + 1).padStart(
+                            2,
+                            '0'
+                          )
+                          const day = String(date.getDate()).padStart(2, '0')
+                          const iso = `${year}-${month}-${day}`
                           setValue('dueDate', iso, { shouldValidate: true })
                         } else {
                           setValue('dueDate', '', { shouldValidate: true })
