@@ -25,7 +25,7 @@ async function bootstrap() {
           "x-dead-letter-routing-key": "jungle_notifications_dlq",
         },
       },
-      noAck: false,
+      noAck: true,
       prefetchCount: 10,
     },
   });

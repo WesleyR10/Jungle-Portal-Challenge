@@ -71,22 +71,25 @@ export class NotificationsGateway
     client.broadcast.emit("task:typing", { taskId: data.taskId, userId });
   }
 
+  @SubscribeMessage("board:join")
+  handleJoinBoard(@ConnectedSocket() client: Socket) {
+    client.join("board");
+    this.logger.log(`Client ${client.id} joined room board`);
+  }
+
+  @SubscribeMessage("board:leave")
+  handleLeaveBoard(@ConnectedSocket() client: Socket) {
+    client.leave("board");
+    this.logger.log(`Client ${client.id} left room board`);
+  }
+
   notifyUser(userId: string, payload: any) {
     const room = `user:${userId}`;
 
-    const event =
-      payload.type === "TASK_ASSIGNED" || payload.type === "TASK_UPDATED"
-        ? payload.type === "TASK_ASSIGNED"
-          ? "task:created"
-          : "task:updated"
-        : payload.type === "COMMENT_ADDED"
-          ? "comment:new"
-          : "notification";
-
     this.logger.log(
-      `Emitting event ${event} to room ${room} for notification ${payload.id}`,
+      `Emitting notification to room ${room} for notification ${payload.id}`,
     );
 
-    this.server.to(room).emit(event, payload);
+    this.server.to(room).emit("notification", payload);
   }
 }
