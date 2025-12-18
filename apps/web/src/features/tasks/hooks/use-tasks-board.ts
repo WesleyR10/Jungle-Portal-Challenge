@@ -146,6 +146,7 @@ export function useTasksBoard(): UseTasksBoardResult {
       updateTaskMutationFn(payload.taskId)({ status: payload.status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false })
+      setLocalColumns(null)
     },
   })
 
