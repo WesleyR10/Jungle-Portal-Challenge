@@ -3,7 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "paths": {
+      "@jungle/types": ["../../../packages/types/src"]
+    }
   },
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist"]
