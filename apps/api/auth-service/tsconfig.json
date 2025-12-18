@@ -3,7 +3,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "paths": {
+      "@jungle/types": ["../../../packages/types/src"],
+      "@jungle/auth-module": ["../../../packages/auth-module/src"]
+    }
   },
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist"]
